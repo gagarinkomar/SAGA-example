@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Заказ #{{ order.id }}{% endblock %}
+
+{% block content %}
+<h1>Заказ #{{ order.id }}</h1>
+
+<div class="info">
+    <p><strong>Статус:</strong> <span class="status {{ order.status.lower() }}">{{ order.status }}</span></p>
+    <p><strong>Пользователь:</strong> ID {{ order.user_id }}</p>
+    <p><strong>Товар:</strong> {{ order.sku }} × {{ order.qty }}</p>
+    <p><strong>Сумма:</strong> {{ order.base_amount }}₽</p>
+    {% if order.discount_amount > 0 %}
+    <p><strong>Скидка:</strong> -{{ order.discount_amount }}₽</p>
+    {% endif %}
+    <p><strong>Итого:</strong> {{ order.final_amount }}₽</p>
+</div>
+
+<h2>Шаги выполнения</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Шаг</th>
+            <th>Статус</th>
+            <th>Время начала</th>
+            <th>Время окончания</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for step in saga_steps %}
+        <tr>
+            <td>{{ step.step_name }}</td>
+            <td><span class="status {{ step.status.lower() }}">{{ step.status }}</span></td>
+            <td>{{ step.started_at.strftime('%H:%M:%S') if step.started_at else '-' }}</td>
+            <td>{{ step.finished_at.strftime('%H:%M:%S') if step.finished_at else '-' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if order.status == 'FAILED' %}
+{% for step in saga_steps %}
+{% if step.status == 'FAILED' and step.error %}
+<div class="error">
+    <strong>Ошибка на шаге "{{ step.step_name }}":</strong> {{ step.error }}
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+<p style="margin-top: 20px;"><a href="/">← Создать новый заказ</a></p>
+{% endblock %}

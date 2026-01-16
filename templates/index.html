@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Создание заказа{% endblock %}
+
+{% block content %}
+<h1>Создание заказа</h1>
+
+{% if error %}
+<div class="error-message">
+    <strong>Ошибка:</strong> {{ error }}
+</div>
+{% endif %}
+
+<form action="/orders" method="post">
+    <div class="form-group">
+        <label for="user_id">Пользователь</label>
+        <select id="user_id" name="user_id" required>
+            {% for user in users %}
+            <option value="{{ user.id }}">{{ user.name }} (баланс: {{ user.balance }}₽)</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="sku">Товар</label>
+        <select id="sku" name="sku" required>
+            {% for item in items %}
+            <option value="{{ item.sku }}">{{ item.name }} — {{ item.price }}₽ (остаток: {{ item.on_hand }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="qty">Количество</label>
+        <input type="number" id="qty" name="qty" required min="1" value="1">
+    </div>
+    
+    <div class="form-group">
+        <label for="promo_code">Промокод (необязательно)</label>
+        <input type="text" id="promo_code" name="promo_code" placeholder="DISCOUNT10">
+    </div>
+    
+    <div class="form-group">
+        <label for="fail_at_step">Тестирование сбоев</label>
+        <select id="fail_at_step" name="fail_at_step">
+            <option value="">Нет сбоя</option>
+            <option value="ReservePromoUse">Сбой при резервировании промокода</option>
+            <option value="ReserveInventory">Сбой при резервировании товара</option>
+            <option value="ChargeUserBalance">Сбой при списании средств</option>
+            <option value="FinalizeOrder">Сбой при финализации заказа</option>
+        </select>
+    </div>
+    
+    <button type="submit">Создать заказ</button>
+</form>
+{% endblock %}
